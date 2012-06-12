@@ -12,12 +12,14 @@ from settings import settings
 
 ThumbsHandler = partial(ThumbnailHandler, settings=settings)
 
-
-application = tornado.web.Application([
+handlers = [
     (r"/", ThumbsHandler),
     (r"/static/(.*)", tornado.web.StaticFileHandler,
-     dict(path=settings['static_path'])),
-])
+     {"path" : settings['static_path']}),
+]
+
+application = tornado.web.Application(handlers,
+                                      static_path=settings["static_path"])
 
 if __name__ == "__main__":
     tornado.options.parse_command_line()
