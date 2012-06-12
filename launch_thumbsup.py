@@ -26,6 +26,7 @@ if __name__ == "__main__":
 
     try:
         http_server = tornado.httpserver.HTTPServer(application)
+        http_server.listen(settings["port"])
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
         logging.info("IOLoop terminated by user")
