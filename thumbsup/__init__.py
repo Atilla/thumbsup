@@ -136,7 +136,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         view_size = self.get_argument("view_size", self.settings["view_size"])
         thumb_size = self.get_argument("thumb_size", self.settings["thumb_size"])
 
-        self.digest = hashlib.md5(norm_host).hexdigest()
+        self.digest = hashlib.md5(norm_host+view_size+thumb_size).hexdigest()
         destination = "%s/%s.png" % (self.settings["static_path"], self.digest)
         
         if os.path.isfile(destination):
