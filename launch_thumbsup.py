@@ -23,6 +23,11 @@ if __name__ == "__main__":
     tornado.options.parse_command_line()
     rootLogger = logging.getLogger('')
     rootLogger.setLevel(logging.DEBUG)
-    http_server = tornado.httpserver.HTTPServer(application)
-    http_server.listen(settings["port"])
-    tornado.ioloop.IOLoop.instance().start()
+
+    try:
+        http_server = tornado.httpserver.HTTPServer(application)
+        tornado.ioloop.IOLoop.instance().start()
+    except KeyboardInterrupt:
+        logging.info("IOLoop terminated by user")
+    except Exception, e:
+        logging.error("IOLoop terminated with: %s" % e)
