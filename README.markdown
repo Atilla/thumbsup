@@ -3,11 +3,15 @@ Thumbsup is a simple website screenshot service.
 It uses the excellent http://phantomjs.org/ from Ariya Hidayat to
 render websites to image files.
 
+This projects embeds the 'urlnorm' URL normalisation routine, written
+in Python by Mark Nottingham.
+
 It requires ImageMagick for the image manipulation routines.
 
 Thumbsup is built as a web-service using Tornado async web
 server. Most of the code deals with spawning phantomjs and imagemagic
-processes for getting the images. 
+processes for getting the images and collecting the output of the
+external calls. 
 
 The images are served as static files and are cached - once generated,
 a screenshot will persist until the file is removed. You can easily
