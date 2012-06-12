@@ -23,3 +23,15 @@ all files older than your cache period.
 
 Currently, the file storage methodology is quite naive and will not
 scale with big amounts of files. 
+
+
+Usage
+_____
+
+Simply make a GET request to the specified port. The only required
+parameter is *host* which is the URL of the page you want to render. 
+
+Optionally you can specify the viewport size *view_size*, to which the image will
+be rendered and cropped and *thumb_size* which are the dimensions to
+which the rendered screenshot will be resized to. By default those
+values are '1280x1024' and '320x200', respectively. 
