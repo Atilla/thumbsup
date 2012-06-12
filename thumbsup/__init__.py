@@ -14,6 +14,9 @@ import tornado.web
 
 
 class TaskChain(object):
+    """
+    Defines a chain of external calls to be executed in order
+    """
     def __init__(self):
 
         self.commands = []
@@ -51,6 +54,9 @@ class TaskChain(object):
         nextcall = self.callbacks.pop(0)
         
         self.pipe = subprocess.Popen(callargs, **self.callopts)
+        # The handler is the most important bit here. We add the same
+        # method as a handler, with the callback for processing the
+        # result already passed as the to_call arg.
         self.ioloop.add_handler(self.pipe.stdout.fileno(),
                                 partial(self._execute, to_call=nextcall),
                                 self.ioloop.READ )
@@ -80,6 +86,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         logging.debug(callargs)
         chain.attach(callargs, self.on_phantom)
 
+        # Crop to viewport size
         callargs = []
         callargs.append("convert")
         callargs.append(destination)
@@ -88,6 +95,18 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append(destination)
         logging.debug(callargs)
         chain.attach(callargs, self.on_magic)
+
+        # Thumbnail the image
+        callargs = []
+        callargs.append("convert")
+        callargs.append(destination)
+        callargs.append("-filter")
+        callargs.append("Lanczos")
+        callargs.append("-thumbnail")
+        callargs.append("%sx%s" %(320, 200))
+        callargs.append(destination)
+        logging.debug(callargs)
+        chain.attach(callargs, partial(self.on_magic, terminate=True))
 
         #Start execution
         chain()
@@ -156,7 +175,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
 
         return success
 
-    def on_magic(self, pipe, terminate=True):
+    def on_magic(self, pipe, terminate=False):
         """
         Callback for the imagemagic call
         """
