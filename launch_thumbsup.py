@@ -5,9 +5,9 @@ from functools import partial
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
+import tornado.options
 
 from thumbsup import ThumbnailHandler, urlnorm
-
 from settings import settings
 
 ThumbsHandler = partial(ThumbnailHandler, settings=settings)
@@ -20,6 +20,7 @@ application = tornado.web.Application([
 ])
 
 if __name__ == "__main__":
+    tornado.options.parse_command_line()
     rootLogger = logging.getLogger('')
     rootLogger.setLevel(logging.DEBUG)
     http_server = tornado.httpserver.HTTPServer(application)
