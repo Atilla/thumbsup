@@ -1,3 +1,5 @@
+# About Thumbsup #
+
 Thumbsup is a simple website screenshot service. 
 
 It uses the excellent http://phantomjs.org/ from Ariya Hidayat to
@@ -24,9 +26,7 @@ all files older than your cache period.
 Currently, the file storage methodology is quite naive and will not
 scale with big amounts of files. 
 
-
-Usage
-_____
+# Usage #
 
 Simply make a GET request to the specified port. The only required
 parameter is *host* which is the URL of the page you want to render. 
