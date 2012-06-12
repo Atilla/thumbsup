@@ -70,7 +70,8 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         super(ThumbnailHandler, self).__init__(*args, **kwargs)
         self.settings = settings
 
-    def _make_external_calls(self, host, destination, width, height):
+    def _make_external_calls(self, host, destination,
+                             view_size, thumb_size):
 
         chain = TaskChain()
 
@@ -80,8 +81,9 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append(self.settings["render_script"])
         callargs.append(host)
         callargs.append(destination)
-        callargs.append(width)
-        callargs.append(height)
+        x, y = view_size.split('x')
+        callargs.append(x)
+        callargs.append(y)
         callargs.append("'%s'" % self.settings["ua_string"])
         logging.debug(callargs)
         chain.attach(callargs, self.on_phantom)
@@ -91,7 +93,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append("convert")
         callargs.append(destination)
         callargs.append("-crop")
-        callargs.append("%sx%s+0+0" %(width, height))
+        callargs.append("%s+0+0" % view_size)
         callargs.append(destination)
         logging.debug(callargs)
         chain.attach(callargs, self.on_magic)
@@ -103,7 +105,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append("-filter")
         callargs.append("Lanczos")
         callargs.append("-thumbnail")
-        callargs.append("%sx%s" %(320, 200))
+        callargs.append(thumb_size)
         callargs.append(destination)
         logging.debug(callargs)
         chain.attach(callargs, partial(self.on_magic, terminate=True))
@@ -115,17 +117,14 @@ class ThumbnailHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
 
-        if 'host' not in self.request.arguments:
-            self.send_error(400)
-            return
-                
+        host = self.get_argument("host")
 
         # If we don't have a default scheme, default to http
         # We can't support relative paths anyway.
-        components = urlparse(self.request.arguments['host'][0])
+        components = urlparse(host)
         if not  components.scheme:
-            components = urlparse("http://"+self.request.arguments['host'][0])
-        host = urlunparse(urlnorm.norm(components))
+            components = urlparse("http://"+host)
+        norm_host = urlunparse(urlnorm.norm(components))
 
         try:
             socket.gethostbyname(components.netloc)
@@ -134,24 +133,17 @@ class ThumbnailHandler(tornado.web.RequestHandler):
             return
 
 
-        width = self.settings["size_x"]
-        height = self.settings["size_y"]
-        
-        if "width" in self.request.arguments:
-            width = self.request.arguments["width"][0]
-        
-            
-        if "height" in self.request.arguments:
-            height = self.request.arguments["height"][0]
+        view_size = self.get_argument("view_size", self.settings["view_size"])
+        thumb_size = self.get_argument("thumb_size", self.settings["thumb_size"])
 
-        self.digest = hashlib.md5(host).hexdigest()
+        self.digest = hashlib.md5(norm_host).hexdigest()
         destination = "%s/%s.png" % (self.settings["static_path"], self.digest)
         
         if os.path.isfile(destination):
-            logging.info("%s exists already, redirecting"  % host)
+            logging.info("%s exists already, redirecting"  % norm_host)
             self.redirect("/static/%s.png" % self.digest)
         else:
-            self._make_external_calls(host, destination, width, height)
+            self._make_external_calls(norm_host, destination, view_size, thumb_size)
             
 
     def on_phantom(self, pipe):
