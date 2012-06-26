@@ -1,0 +1,35 @@
+#!/bin/sh
+
+DAEMON_DIR=/opt/thumbsup 
+DAEMON=$DAEMON_DIR/launch_thumbsup.py
+NAME=thumbsup
+DESC="thumbsup daemon" 
+DAEMON_OPTS="--logging=debug --log_file_prefix=/var/log/thumbsup/thumbsup.log"
+
+test -x $DAEMON || exit 0 
+
+set -e
+
+case "$1" in 
+  start) 
+        echo -n "Starting $DESC: " 
+        start-stop-daemon --start --pidfile /var/run/$NAME.pid --chdir $DAEMON_DIR --make-pidfile --background -c nobody --startas $DAEMON -- $DAEMON_OPTS
+        echo "$NAME." 
+        ;; 
+  stop) 
+        echo -n "Stopping $DESC: " 
+        start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/$NAME.pid 
+        rm -f /var/run/$NAME.pid 
+        echo "$NAME." 
+        ;; 
+  restart) 
+        $0 stop
+        $0 start
+        ;;
+  *)
+        echo "I need start|stop|restart"
+        exit 1
+        ;;
+esac 
+
+exit 0
