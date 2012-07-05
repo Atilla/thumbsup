@@ -126,7 +126,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         fetch_and_resize.attach(callargs, self.on_magic)
 
         success = partial(self.redirect, "/static/%s.png" % self.digest)
-        failure = partial(self.send_error, "500")
+        failure = partial(self.send_error, 500)
         fetch_and_resize.terminate(success, failure)
 
         #Start execution
