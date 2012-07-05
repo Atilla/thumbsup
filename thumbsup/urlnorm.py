@@ -14,12 +14,12 @@ Available functions:
   norms - given a URL (string), returns a normalised URL
   norm - given a URL tuple, returns a normalised tuple
   test - test suite
-  
+
 CHANGES:
 0.92 - unknown schemes now pass the port through silently
 0.91 - general cleanup
      - changed dictionaries to lists where appropriate
-     - more fine-grained authority parsing and normalisation    
+     - more fine-grained authority parsing and normalisation
 """
 
 __license__ = """
@@ -53,32 +53,32 @@ import re
 
 _collapse = re.compile('([^/]+/\.\./?|/\./|//|/\.$|/\.\.$)')
 _server_authority = re.compile('^(?:([^\@]+)\@)?([^\:]+)(?:\:(.+))?$')
-_default_port = {   'http': '80',
-                    'https': '443',
-                    'gopher': '70',
-                    'news': '119',
-                    'snews': '563',
-                    'nntp': '119',
-                    'snntp': '563',
-                    'ftp': '21',
-                    'telnet': '23',
-                    'prospero': '191',
+_default_port = {'http': '80',
+                 'https': '443',
+                 'gopher': '70',
+                 'news': '119',
+                 'snews': '563',
+                 'nntp': '119',
+                 'snntp': '563',
+                 'ftp': '21',
+                 'telnet': '23',
+                 'prospero': '191',
                 }
-_relative_schemes = [   'http',
-                        'https',
-                        'news',
-                        'snews',
-                        'nntp',
-                        'snntp',
-                        'ftp',
-                        'file',
-                        ''
+_relative_schemes = ['http',
+                     'https',
+                     'news',
+                     'snews',
+                     'nntp',
+                     'snntp',
+                     'ftp',
+                     'file',
+                     ''
                     ]
-_server_authority_schemes = [   'http',
-                                'https',
-                                'news',
-                                'snews',
-                                'ftp',
+_server_authority_schemes = ['http',
+                             'https',
+                             'news',
+                             'snews',
+                             'ftp',
                             ]
 
 
@@ -111,11 +111,10 @@ def norm(urltuple):
     return (scheme, authority, path, parameters, query, fragment)
 
 
-
 def test():
     """ test suite; some taken from RFC1808. """
-    tests = {    
-        '/foo/bar/.':                    '/foo/bar/', 
+    tests = {
+        '/foo/bar/.':                    '/foo/bar/',
         '/foo/bar/./':                   '/foo/bar/',
         '/foo/bar/..':                   '/foo/',
         '/foo/bar/../':                  '/foo/',
@@ -151,7 +150,7 @@ def test():
 
     n_correct, n_fail = 0, 0
     test_keys = tests.keys()
-    test_keys.sort()            
+    test_keys.sort()
     for i in test_keys:
         print 'ORIGINAL:', i
         cleaned = norms(i)
@@ -163,7 +162,7 @@ def test():
             n_fail = n_fail + 1
         else:
             n_correct = n_correct + 1
-        print        
+        print
     print "TOTAL CORRECT:", n_correct
     print "TOTAL FAILURE:", n_fail
 

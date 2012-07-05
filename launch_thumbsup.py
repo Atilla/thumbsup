@@ -7,7 +7,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.options
 
-from thumbsup import ThumbnailHandler, urlnorm
+from thumbsup import ThumbnailHandler
 from settings import settings
 
 ThumbsHandler = partial(ThumbnailHandler, settings=settings)
@@ -15,7 +15,7 @@ ThumbsHandler = partial(ThumbnailHandler, settings=settings)
 handlers = [
     (r"/", ThumbsHandler),
     (r"/static/(.*)", tornado.web.StaticFileHandler,
-     {"path" : settings['static_path']}),
+     {"path": settings['static_path']}),
 ]
 
 application = tornado.web.Application(handlers,
