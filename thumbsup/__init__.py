@@ -19,12 +19,12 @@ class TaskChain(object):
     """
     Defines a chain of external calls to be executed in order
     """
-    def __init__(self):
+    def __init__(self, callback, errback):
 
         self.commands = []
         self.callbacks = []
-        self.term_callback = None
-        self.fail_callback = None
+        self.callback = callback
+        self.errback = errback
 
         self.callopts = {
             "stdin": subprocess.PIPE,
@@ -43,10 +43,6 @@ class TaskChain(object):
     def attach(self, command, callback):
         self.commands.append(command)
         self.callbacks.append(callback)
-
-    def terminate(self, callback, errback):
-        self.term_callback = callback
-        self.fail_callback = errback
 
     def _execute(self, fd, events, to_call):
         success = True
@@ -88,7 +84,11 @@ class ThumbnailHandler(tornado.web.RequestHandler):
     def _make_external_calls(self, host, destination,
                              view_size, thumb_size):
 
-        fetch_and_resize = TaskChain()
+        # Define the actions for success and failure
+        success = partial(self.redirect, "/static/%s.png" % self.digest)
+        failure = partial(self.send_error, 500)
+
+        fetch_and_resize = TaskChain(success, failure)
 
         # Phantomjs
         callargs = []
@@ -124,10 +124,6 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append(destination)
         logging.debug(callargs)
         fetch_and_resize.attach(callargs, self.on_magic)
-
-        success = partial(self.redirect, "/static/%s.png" % self.digest)
-        failure = partial(self.send_error, 500)
-        fetch_and_resize.terminate(success, failure)
 
         #Start execution
         fetch_and_resize()
