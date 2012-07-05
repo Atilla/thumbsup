@@ -155,8 +155,8 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         thumb_size = self.get_argument("thumb_size",
                                        self.settings["thumb_size"])
 
-        item_hash = hashlib.md5(norm_host + view_size + thumb_size)
-        self.digest = item_hash.hexdigest()
+        hash_string = norm_host + view_size + thumb_size
+        self.digest = hashlib.md5(hash_string.encode("utf-8")).hexdigest()
         destination = "%s/%s.png" % (self.settings["static_path"], self.digest)
 
         if os.path.isfile(destination):
@@ -178,7 +178,8 @@ class ThumbnailHandler(tornado.web.RequestHandler):
                 level, message = line.strip().split(":", 1)
                 level = level.upper()
                 line = line.strip()
-                logging.log(getattr(logging, level, 20), message)
+                logging.log(getattr(logging, level, 20),
+                            message.decode("utf-8"))
                 if level in ("ERROR", "CRITICAL"):
                     success = False
             else:  # Default to info logging
