@@ -27,7 +27,8 @@ if __name__ == "__main__":
     rootLogger.setLevel(logging.DEBUG)
 
     try:
-        http_server = tornado.httpserver.HTTPServer(application)
+        http_server = tornado.httpserver.HTTPServer(application,
+                                                    no_keep_alive=True)
         http_server.listen(settings["port"])
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
