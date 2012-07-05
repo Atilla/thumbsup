@@ -12,7 +12,7 @@ from urlparse import urlparse, urlunparse
 import tornado.ioloop
 import tornado.web
 
-from thumbsup import urlnorm
+from thumbsup import urlnorm, calls
 
 
 class TaskChain(object):
@@ -36,8 +36,8 @@ class TaskChain(object):
         self.ioloop = tornado.ioloop.IOLoop.instance()
 
     def __call__(self):
-        assert self.term_callback
-        assert self.fail_callback
+        assert self.callback
+        assert self.errback
         self._execute(None, None, None)
 
     def attach(self, command, callback):
@@ -54,10 +54,10 @@ class TaskChain(object):
         # Bail if something in the chain breaks
         # or we run out of commands
         if not success:
-            self.fail_callback()
+            self.errback()
             return
         if not self.commands:
-            self. term_callback()
+            self.callback()
             return
 
         callargs = self.commands.pop(0)
@@ -101,7 +101,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append(y)
         callargs.append("'%s'" % self.settings["ua_string"])
         logging.debug(callargs)
-        fetch_and_resize.attach(callargs, self.on_phantom)
+        fetch_and_resize.attach(callargs, calls.on_phantom)
 
         # Crop to viewport size
         callargs = []
@@ -111,7 +111,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append("%s+0+0" % view_size)
         callargs.append(destination)
         logging.debug(callargs)
-        fetch_and_resize.attach(callargs, self.on_magic)
+        fetch_and_resize.attach(callargs, calls.on_magic)
 
         # Thumbnail the image
         callargs = []
@@ -123,7 +123,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append(thumb_size)
         callargs.append(destination)
         logging.debug(callargs)
-        fetch_and_resize.attach(callargs, self.on_magic)
+        fetch_and_resize.attach(callargs, calls.on_magic)
 
         #Start execution
         fetch_and_resize()
@@ -161,38 +161,3 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         else:
             self._make_external_calls(norm_host, destination,
                                       view_size, thumb_size)
-
-    @classmethod
-    def on_phantom(self, pipe):
-        """
-        Callback for the phantomjs call
-        """
-        success = True
-        for line in pipe.stdout:
-            # Expect log output to be prefixed with LOGLEVEL:
-            if ":" in line[:10]:
-                level, message = line.strip().split(":", 1)
-                level = level.upper()
-                line = line.strip()
-                logging.log(getattr(logging, level, 20),
-                            message.decode("utf-8"))
-                if level in ("ERROR", "CRITICAL"):
-                    success = False
-            else:  # Default to info logging
-                logging.info(line)
-
-        return success
-
-    @classmethod
-    def on_magic(self, pipe):
-        """
-        Callback for the imagemagic call
-        """
-        success = True
-        for line in pipe.stdout:
-            logging.error(line.strip())
-            success = False
-        if success:
-            logging.info("Imagemagic resize success")
-
-        return success
