@@ -14,10 +14,10 @@ def on_phantom(pipe):
             line = line.strip()
             logging.log(getattr(logging, level, 20),
                         message.decode("utf-8"))
-            if level in ("ERROR", "CRITICAL"):
-                success = False
-            else:  # Default to info logging
-                logging.info(line)
+        if level in ("ERROR", "CRITICAL"):
+            success = False
+        else:  # Default to info logging
+            logging.info(line)
 
     return success
 
