@@ -49,6 +49,7 @@ class TaskChain(object):
         if to_call is not None:
             assert self.pipe
             success = to_call(self.pipe)
+            logging.debug("Removing handler %s" % fd )
             self.ioloop.remove_handler(fd)
 
         # Bail if something in the chain breaks
@@ -63,10 +64,12 @@ class TaskChain(object):
         callargs = self.commands.pop(0)
         nextcall = self.callbacks.pop(0)
 
+        logging.debug("Calling popen")
         self.pipe = subprocess.Popen(callargs, **self.callopts)
         # The handler is the most important bit here. We add the same
         # method as a handler, with the callback for processing the
         # result already passed as the to_call arg.
+        logging.debug("Attaching handler to %s " % self.pipe.stdout.fileno())
         self.ioloop.add_handler(self.pipe.stdout.fileno(),
                                 partial(self._execute, to_call=nextcall),
                                 self.ioloop.READ )
@@ -126,6 +129,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         fetch_and_resize.attach(callargs, calls.on_magic)
 
         #Start execution
+        logging.debug("Handler complete, relaying to async chain")
         fetch_and_resize()
 
     @tornado.web.asynchronous
