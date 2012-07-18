@@ -72,7 +72,7 @@ class TaskChain(object):
         logging.debug("Attaching handler to %s " % self.pipe.stdout.fileno())
         self.ioloop.add_handler(self.pipe.stdout.fileno(),
                                 partial(self._execute, to_call=nextcall),
-                                self.ioloop.READ )
+                                self.ioloop.ERROR)
 
 
 class ThumbnailHandler(tornado.web.RequestHandler):
