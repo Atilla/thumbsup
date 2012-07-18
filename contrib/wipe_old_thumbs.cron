@@ -1,0 +1,3 @@
+# Example cronjob in Debian/Ubuntu format
+# Wipe all thumbnails older than 30 minutes
+0,30 * * * *   root	find /tmp -type f -name "*.png" -amin +30 -exec rm {} \;
