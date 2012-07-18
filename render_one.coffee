@@ -5,7 +5,10 @@ system = require 'system'
 
 page.userAgent = ua
 page.viewportSize = {width: width, height: height}
-console.log("DEBUG: Attempting to fetch #{ url }")
+
+# Warning, output before the processing is done will currently BLOCK in the handler
+# console.log("DEBUG: Attempting to fetch #{ url }")
+
 page.open url, (status) ->
     if status is 'success'
         console.log("INFO: Saved #{ url } screenshot as #{ dst }")
