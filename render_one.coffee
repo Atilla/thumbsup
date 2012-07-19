@@ -12,8 +12,9 @@ page.clipRect = { top: 0, left: 0, width: width, height: height }
 
 page.open url, (status) ->
     if status is 'success'
+        page.render dst
         console.log("INFO: Saved #{ url } screenshot as #{ dst }")
-        window.setTimeout (-> page.render dst; phantom.exit(0)), 200
+        phantom.exit(0)
     else
         console.log('ERROR: Unable to load the address!')
         phantom.exit(1)
