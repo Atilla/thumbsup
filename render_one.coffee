@@ -10,6 +10,9 @@ page.clipRect = { top: 0, left: 0, width: width, height: height }
 # Warning, output before the processing is done will currently BLOCK in the handler
 # console.log("DEBUG: Attempting to fetch #{ url }")
 
+# Add a reaper timer, for anything long enough to be annoying
+window.setTimeout (-> console.log("ERROR: Timeout exceeded"); phantom.exit(0)), 10000
+
 page.open url, (status) ->
     if status is 'success'
         page.render dst
