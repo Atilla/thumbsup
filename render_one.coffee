@@ -5,6 +5,7 @@ system = require 'system'
 
 page.userAgent = ua
 page.viewportSize = {width: width, height: height}
+page.clipRect = { top: 0, left: 0, width: width, height: height }
 
 # Warning, output before the processing is done will currently BLOCK in the handler
 # console.log("DEBUG: Attempting to fetch #{ url }")
