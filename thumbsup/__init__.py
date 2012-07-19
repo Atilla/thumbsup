@@ -106,16 +106,6 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         logging.debug(callargs)
         fetch_and_resize.attach(callargs, calls.on_phantom)
 
-        # Crop to viewport size
-        #callargs = []
-        #callargs.append("convert")
-        #callargs.append(destination)
-        #callargs.append("-crop")
-        #callargs.append("%s+0+0" % view_size)
-        #callargs.append(destination)
-        #logging.debug(callargs)
-        #fetch_and_resize.attach(callargs, calls.on_magic)
-
         # Thumbnail the image
         callargs = []
         callargs.append("convert")
