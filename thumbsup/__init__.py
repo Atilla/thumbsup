@@ -89,7 +89,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
 
         # Define the actions for success and failure
         success = partial(self.redirect, "/static/%s.png" % self.digest)
-        failure = partial(self.send_error, 500)
+        failure = partial(self.send_error, 504)
 
         fetch_and_resize = TaskChain(success, failure)
 
