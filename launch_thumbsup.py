@@ -8,9 +8,17 @@ import tornado.web
 import tornado.options
 
 from thumbsup import ThumbnailHandler
+import thumbsup.paths
 from settings import settings
 
-ThumbsHandler = partial(ThumbnailHandler, settings=settings)
+
+subs = thumbsup.paths.get_subs(settings['static_path'])
+if len(subs) < 2:
+    ThumbsHandler = partial(ThumbnailHandler, settings=settings)
+else:
+    logging.debug("Subfolders found at static_path, using advanced digest")
+    ThumbsHandler = partial(ThumbnailHandler, settings=settings,
+                            digest=thumbsup.paths.create_digest(subs))
 
 handlers = [
     (r"/", ThumbsHandler),

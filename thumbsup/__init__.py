@@ -5,14 +5,13 @@ import os
 import socket
 import subprocess
 import logging
-import hashlib
 from functools import partial
 from urlparse import urlparse, urlunparse
 
 import tornado.ioloop
 import tornado.web
 
-from thumbsup import urlnorm, calls
+from thumbsup import urlnorm, calls, paths
 
 
 class TaskChain(object):
@@ -80,15 +79,21 @@ class ThumbnailHandler(tornado.web.RequestHandler):
     settings = {}
 
     def __init__(self, *args, **kwargs):
-        settings = kwargs.pop('settings')
+        self.settings = kwargs.pop('settings')
+
+        if "digest" in kwargs:
+            self.filename_digest = kwargs.pop("digest")
+        else:
+            self.filename_digest = paths._simple_digest
+
         super(ThumbnailHandler, self).__init__(*args, **kwargs)
-        self.settings = settings
 
     def _make_external_calls(self, host, destination,
                              view_size, thumb_size):
 
         # Define the actions for success and failure
-        success = partial(self.redirect, "/static/%s.png" % self.digest)
+        success = partial(self.redirect, "/static/%s.png" %
+                          self.filename)
         failure = partial(self.send_error, 504)
 
         fetch_and_resize = TaskChain(success, failure)
@@ -145,13 +150,14 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         thumb_size = self.get_argument("thumb_size",
                                        self.settings["thumb_size"])
 
-        hash_string = norm_host + view_size + thumb_size
-        self.digest = hashlib.md5(hash_string.encode("utf-8")).hexdigest()
-        destination = "%s/%s.png" % (self.settings["static_path"], self.digest)
+        self.filename = self.filename_digest(norm_host, view_size, thumb_size)
+
+        destination = "%s/%s.png" % (self.settings["static_path"],
+                                     self.filename)
 
         if os.path.isfile(destination):
             logging.info("%s exists already, redirecting"  % norm_host)
-            self.redirect("/static/%s.png" % self.digest)
+            self.redirect("/static/%s.png" % self.filename)
         else:
             self._make_external_calls(norm_host, destination,
                                       view_size, thumb_size)
