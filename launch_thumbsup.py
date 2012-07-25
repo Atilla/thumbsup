@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     try:
         http_server = tornado.httpserver.HTTPServer(application,
-                                                    no_keep_alive=True)
+                                                    xheaders=True)
         http_server.listen(settings["port"])
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
