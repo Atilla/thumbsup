@@ -23,6 +23,9 @@ Thumbsup behind a Varnish proxy.
 Cache invalidation is easily done with a simple cron job that wipes
 all files older than your cache period. 
 
+
+# File Storage #
+
 You can choose between two ways to store your files.
 
 * All in one folder, filename being the hash of the URL and render sizes
@@ -30,9 +33,10 @@ You can choose between two ways to store your files.
 
 The first file storage methodology is quite naive and will not
 scale with big amounts of files for obvious reasons. The service will
-automatically use the second storage scheme, if it
-detects more than two subfolders in the static files folder. Don't
-forget you will need the right permissions for the destination folder.
+automatically use the second storage scheme, if it detects more than
+two subfolders in the static files folder. Don't forget you will need
+the right permissions for the destination folder.
+
 
 # Usage #
 
@@ -42,4 +46,14 @@ parameter is *host* which is the URL of the page you want to render.
 Optionally you can specify the viewport size *view_size*, to which the image will
 be rendered and cropped and *thumb_size* which are the dimensions to
 which the rendered screenshot will be resized to. By default those
-values are '1280x1024' and '320x200', respectively. 
+values are '1280x1024' and '320x200', respectively.
+
+# Current flaws #
+
+Obviously, the service in its current form is a gigantic forkbomb :)
+One can easily fire off enough requests  to kill it, as Tornado will
+do a pretty good job of spawning things until the system blocks. 
+
+You can keep a pretty marge number of files, as long as you create a
+good number of subfolders in your storage location, but you need to do
+this manually and the service needs to be restarted.
