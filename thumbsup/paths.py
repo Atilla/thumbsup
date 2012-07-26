@@ -1,4 +1,5 @@
 import hashlib
+from base64 import urlsafe_b64encode
 import os
 
 # Just for fun right now
@@ -12,7 +13,7 @@ def _simple_digest(*args):
     result = hashlib.sha1(_le_sel)
     for x in args:
         result.update(x.encode("utf-8"))
-    return result.hexdigest()
+    return urlsafe_b64encode(result.digest()).rstrip("=")
 
 
 def consistent_two_level(slots):
