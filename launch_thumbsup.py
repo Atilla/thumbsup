@@ -12,13 +12,14 @@ import thumbsup.paths
 from settings import settings
 
 
-subs = thumbsup.paths.get_subs(settings['static_path'])
-if len(subs) < 2:
+subfolders = thumbsup.paths.get_subs(settings['static_path'])
+if len(subfolders) < 2:
     ThumbsHandler = partial(ThumbnailHandler, settings=settings)
 else:
     logging.debug("Subfolders found at static_path, using advanced digest")
+    digest = thumbsup.paths.consistent_two_level(subfolders)
     ThumbsHandler = partial(ThumbnailHandler, settings=settings,
-                            digest=thumbsup.paths.create_digest(subs))
+                            digest=digest)
 
 handlers = [
     (r"/", ThumbsHandler),

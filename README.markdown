@@ -23,8 +23,15 @@ Thumbsup behind a Varnish proxy.
 Cache invalidation is easily done with a simple cron job that wipes
 all files older than your cache period. 
 
-Currently, the file storage methodology is quite naive and will not
+You can choose between two ways to store your files. Currently, the file storage methodology is quite naive and will not
 scale with big amounts of files. 
+
+* All in one folder, filename being the hash of the URL and render sizes
+* Slightly more elaborate two-level folder scheme, in order to fit a large number of files.
+
+The service will automatically use the second storage scheme, if it
+detects more than two subfolders in the static files folder. Don't
+forget you will need the right permissions for the destination folder.
 
 # Usage #
 
