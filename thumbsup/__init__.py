@@ -159,5 +159,6 @@ class ThumbnailHandler(tornado.web.RequestHandler):
             logging.info("%s exists already, redirecting"  % norm_host)
             self.redirect("/static/%s.png" % self.filename)
         else:
+            logging.info("%s not found, starting render"  % norm_host)
             self._make_external_calls(norm_host, destination,
                                       view_size, thumb_size)
