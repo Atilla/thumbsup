@@ -89,7 +89,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         super(ThumbnailHandler, self).__init__(*args, **kwargs)
 
     def _make_external_calls(self, host, destination,
-                             view_size, thumb_size):
+                             view_size, thumb_size, ip):
 
         # Define the actions for success and failure
         success = partial(self.redirect, "/static/%s.png" %
@@ -108,6 +108,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         callargs.append(x)
         callargs.append(y)
         callargs.append("'%s'" % self.settings["ua_string"])
+        callargs.append(ip)
         logging.debug(callargs)
         fetch_and_resize.attach(callargs, calls.on_phantom)
 
@@ -161,4 +162,5 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         else:
             logging.info("%s not found, starting render"  % norm_host)
             self._make_external_calls(norm_host, destination,
-                                      view_size, thumb_size)
+                                      view_size, thumb_size,
+                                      self.request.remote_ip)

@@ -1,9 +1,13 @@
 page = require('webpage').create()
 system = require 'system'
 
-[url, dst, width, height, ua] = system.args[1..]
+[url, dst, width, height, ua, ip] = system.args[1..]
 
+headers =
+    "X-Forwarded-For": ip
+        
 page.userAgent = ua
+page.customHeaders = headers
 page.viewportSize = {width: width, height: height}
 page.clipRect = { top: 0, left: 0, width: width, height: height }
 
