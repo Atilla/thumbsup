@@ -52,8 +52,11 @@ values are '1280x1024' and '320x200', respectively.
 
 Obviously, the service in its current form is a gigantic forkbomb :)
 One can easily fire off enough requests  to kill it, as Tornado will
-do a pretty good job of spawning things until the system blocks. 
+do a pretty good job of spawning things until the system blocks. If
+you are running thumbsup behind a reverse proxy of some sort, I would
+strongly advise you to make good use of its rate-limiting. Most of
+them have some sort of rate-limiting mechanism. 
 
-You can keep a pretty marge number of files, as long as you create a
+You can keep a pretty large number of files, as long as you create a
 good number of subfolders in your storage location, but you need to do
 this manually and the service needs to be restarted.
