@@ -16,8 +16,11 @@ def on_phantom(pipe):
                         message.decode("utf-8"))
             if level in ("ERROR", "CRITICAL"):
                 success = False
-        else:  # Default to info logging
-            logging.info(line)
+        else:
+            # The rest are phantomjs errors. Phantomjs output is currently
+            # all sent to stdout, JS console errors included. See
+            # PhantomJS issues 150, 270 and 333
+            logging.debug(line)
 
     return success
 
