@@ -2,15 +2,17 @@ import hashlib
 from base64 import urlsafe_b64encode
 import os
 
-# Just for fun right now
-_le_sel = "sdhf1ascibl"
+# Just for fun right now This all needs to be renamed and refactored
+# in somehting that doesn't really suck.
+
+_static_salt = "sdhf1ascibl"
 
 
 def _simple_digest(*args):
     """
     Simply returns the SHA1 hexdigest of all args
     """
-    result = hashlib.sha1(_le_sel)
+    result = hashlib.sha1(_static_salt)
     for x in args:
         result.update(x.encode("utf-8"))
     return urlsafe_b64encode(result.digest()).rstrip("=")

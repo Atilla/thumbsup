@@ -151,7 +151,8 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         thumb_size = self.get_argument("thumb_size",
                                        self.settings["thumb_size"])
 
-        self.filename = self.filename_digest(norm_host, view_size, thumb_size)
+        self.filename = self.filename_digest(components.netloc, norm_host,
+                                             view_size, thumb_size)
 
         destination = "%s/%s.png" % (self.settings["static_path"],
                                      self.filename)
