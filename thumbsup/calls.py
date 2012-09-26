@@ -1,5 +1,24 @@
 import logging
 
+loglevels = ("INFO", "WARN", "WARNING", "ERROR", "CRITICAL", "FATAL", "DEBUG")
+
+
+def phantomjs_to_log(line):
+    loglevel = logging.DEBUG
+    message  = None
+
+    # Expect log output to be prefixed with LOGLEVEL:
+    if ":" in line[:10]:
+        level, message = line.strip().split(":", 1)
+        level = level.upper()
+        if level in loglevels:
+            loglevel = getattr(logging, level)
+            message = message.strip().decode("utf-8")
+        else:
+            message = line.strip()
+
+    return loglevel, message
+
 
 def on_phantom(pipe):
     """
@@ -7,20 +26,11 @@ def on_phantom(pipe):
     """
     success = True
     for line in pipe.stdout:
-        # Expect log output to be prefixed with LOGLEVEL:
-        if ":" in line[:10]:
-            level, message = line.strip().split(":", 1)
-            level = level.upper()
-            line = line.strip()
-            logging.log(getattr(logging, level, 20),
-                        message.decode("utf-8"))
-            if level in ("ERROR", "CRITICAL"):
-                success = False
-        else:
-            # The rest are phantomjs errors. Phantomjs output is currently
-            # all sent to stdout, JS console errors included. See
-            # PhantomJS issues 150, 270 and 333
-            logging.debug(line)
+        loglevel, message = phantomjs_to_log(line)
+        if loglevel >= logging.ERROR:
+            success = False
+        if message:
+            logging.log(loglevel, message)
 
     return success
 
