@@ -30,7 +30,7 @@ def consistent_two_level(slots):
         /slotname/args[0]hash/argshash
         """
         item = _simple_digest(*args)
-        x = [(_simple_digest(n, item), n) for n in slots]
+        x = [(_simple_digest(n, args[0]), n) for n in slots]
         return os.path.join(min(x)[1], _simple_digest(args[0]), item)
     return _digest
 
