@@ -131,7 +131,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
 
-        host = self.get_argument("host")
+        host = self.get_argument("host").encode('idna')
 
         # If we don't have a default scheme, default to http
         # We can't support relative paths anyway.
