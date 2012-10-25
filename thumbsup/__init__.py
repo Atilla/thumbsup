@@ -155,11 +155,11 @@ class ThumbnailHandler(tornado.web.RequestHandler):
             return
 
         view_size = self.get_argument("view_size",
-                                      self.settings["view_size"])
+                                      self.settings["view_size"]).lower()
         thumb_size = self.get_argument("thumb_size",
-                                       self.settings["thumb_size"])
+                                       self.settings["thumb_size"]).lower()
         image_format = self.get_argument("image_format",
-                                       self.settings["image_format"])
+                                       self.settings["image_format"]).lower()
 
         img_hash = self.filename_digest(components.netloc, norm_host,
                                         view_size, thumb_size)
