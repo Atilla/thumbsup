@@ -88,12 +88,15 @@ class ThumbnailHandler(tornado.web.RequestHandler):
 
         super(ThumbnailHandler, self).__init__(*args, **kwargs)
 
+    @property
+    def redirect_location(self):
+        return "/static/%s" % (self.filename)
+
     def _make_external_calls(self, host, destination,
                              view_size, thumb_size, ip):
 
         # Define the actions for success and failure
-        success = partial(self.redirect, "/static/%s.png" %
-                          self.filename)
+        success = partial(self.redirect, self.redirect_location)
         failure = partial(self.send_error, 504)
 
         fetch_and_resize = TaskChain(success, failure)
@@ -155,16 +158,18 @@ class ThumbnailHandler(tornado.web.RequestHandler):
                                       self.settings["view_size"])
         thumb_size = self.get_argument("thumb_size",
                                        self.settings["thumb_size"])
+        image_format = self.get_argument("image_format",
+                                       self.settings["image_format"])
 
-        self.filename = self.filename_digest(components.netloc, norm_host,
-                                             view_size, thumb_size)
+        img_hash = self.filename_digest(components.netloc, norm_host,
+                                        view_size, thumb_size)
+        self.filename = "%s.%s" % (img_hash, image_format)
 
-        destination = "%s/%s.png" % (self.settings["static_path"],
-                                     self.filename)
+        destination = os.path.join(self.settings["static_path"], self.filename)
 
         if os.path.isfile(destination):
             logging.info("%s exists already, redirecting"  % norm_host)
-            self.redirect("/static/%s.png" % self.filename)
+            self.redirect(self.redirect_location)
         else:
             logging.info("%s not found, starting render"  % norm_host)
             self._make_external_calls(norm_host, destination,
