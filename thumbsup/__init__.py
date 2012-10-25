@@ -138,11 +138,16 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         components = urlparse(host)
         if not  components.scheme:
             components = urlparse("http://" + host)
-        norm_host = urlunparse(urlnorm.norm(components))
 
         try:
+            norm_host = urlunparse(urlnorm.norm(components))
             socket.gethostbyname(components.netloc)
-        except:
+        except AttributeError:
+            logging.error("Invalid address provided - %s" % host)
+            self.send_error(504)
+            return
+        except socket.gaierror:
+            logging.error("Domain not found - %s" % components.netloc)
             self.send_error(504)
             return
 
