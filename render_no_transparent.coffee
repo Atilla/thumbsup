@@ -28,8 +28,8 @@ page.open url, (status) ->
         # Let's attempt to set BG color to white if it's transparent
         page_style = window.getComputedStyle(document.body, null)
         page_bg = page_style.backgroundColor.match(/\d+/g)
-        if page_bg is null
-            document.body.bgColor = 'white';
+        if page_bg[3] == '0'
+            page.evaluate(-> document.body.bgColor = 'white')
         page.render dst
         console.log("INFO: Saved #{ url } screenshot as #{ dst }")
         phantom.exit(0)
