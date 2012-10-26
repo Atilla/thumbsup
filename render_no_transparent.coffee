@@ -20,19 +20,20 @@ page.clipRect =
 
 # Add a reaper timer, for anything long enough to be annoying
 window.setTimeout (->
-    console.log("ERROR: Timeout exceeded")
-    phantom.exit(0)), 10000
+    console.log "ERROR: Timeout exceeded"
+    phantom.exit 0),
+    10000
 
 page.open url, (status) ->
     if status is 'success'
         # Let's attempt to set BG color to white if it's transparent
-        page_style = window.getComputedStyle(document.body, null)
-        page_bg = page_style.backgroundColor.match(/\d+/g)
-        if page_bg[3] == '0'
-            page.evaluate(-> document.body.bgColor = 'white')
+        page_style = window.getComputedStyle document.body, null 
+        page_bg = page_style.backgroundColor.match /\d+/g 
+        if page_bg[3] is '0'
+            page.evaluate -> document.body.bgColor = 'white'
         page.render dst
-        console.log("INFO: Saved #{ url } screenshot as #{ dst }")
-        phantom.exit(0)
+        console.log "INFO: Saved #{ url } screenshot as #{ dst }"
+        phantom.exit 0 
     else
-        console.log('ERROR: Unable to load the address!')
-        phantom.exit(1)
+        console.log 'ERROR: Unable to load the address!' 
+        phantom.exit 1 

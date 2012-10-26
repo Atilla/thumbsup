@@ -20,14 +20,15 @@ page.clipRect =
 
 # Add a reaper timer, for anything long enough to be annoying
 window.setTimeout (->
-    console.log("ERROR: Timeout exceeded")
-    phantom.exit(0)), 10000
+    console.log "ERROR: Timeout exceeded"
+    phantom.exit 0),
+    10000
 
 page.open url, (status) ->
     if status is 'success'
         page.render dst
-        console.log("INFO: Saved #{ url } screenshot as #{ dst }")
-        phantom.exit(0)
+        console.log "INFO: Saved #{ url } screenshot as #{ dst }"
+        phantom.exit 0
     else
-        console.log('ERROR: Unable to load the address!')
-        phantom.exit(1)
+        console.log 'ERROR: Unable to load the address!'
+        phantom.exit 1
