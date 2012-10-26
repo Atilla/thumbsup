@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import logging
 from functools import partial
 
@@ -32,8 +33,17 @@ def init_application():
                                    static_path=settings["static_path"])
 
 
+def check_config_sanity():
+    allowed_formats = ("png", "jpg", "gif")
+    assert settings["image_format"].lower() in allowed_formats
+    assert os.path.isdir(settings["static_path"])
+    assert os.path.isfile(settings["phantomjs_path"])
+
+
 if __name__ == "__main__":
     tornado.options.parse_command_line()
+
+    check_config_sanity()
 
     try:
         http_server = tornado.httpserver.HTTPServer(init_application(),
