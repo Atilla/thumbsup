@@ -133,19 +133,18 @@ class ThumbnailHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def get(self):
-
-        host = self.get_argument("host").encode('idna')
-
-        # If we don't have a default scheme, default to http
-        # We can't support relative paths anyway.
-        components = urlparse(host)
-        if not  components.scheme:
-            components = urlparse("http://" + host)
-
         try:
+            host = self.get_argument("host").encode('idna')
+
+            # If we don't have a default scheme, default to http
+            # We can't support relative paths anyway.
+            components = urlparse(host)
+            if not  components.scheme:
+                components = urlparse("http://" + host)
+
             norm_host = urlunparse(urlnorm.norm(components))
             socket.gethostbyname(components.netloc)
-        except AttributeError:
+        except (UnicodeError, AttributeError):
             logging.error("Invalid address provided - %s" % host)
             self.send_error(504)
             return
