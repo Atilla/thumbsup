@@ -102,28 +102,15 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         fetch_and_resize = TaskChain(success, failure)
 
         # Phantomjs
-        callargs = []
-        callargs.append(self.settings["phantomjs_path"])
-        callargs.append(self.settings["render_script"])
-        callargs.append(host)
-        callargs.append(destination)
-        x, y = view_size.split('x')
-        callargs.append(x)
-        callargs.append(y)
-        callargs.append("'%s'" % self.settings["ua_string"])
-        callargs.append(ip)
+        callargs = calls.call_phantom(self.settings["phantomjs_path"],
+                                      self.settings["render_script"],
+                                      host, destination, view_size,
+                                      self.settings["ua_string"], ip)
         logging.debug(callargs)
         fetch_and_resize.attach(callargs, calls.on_phantom)
 
         # Thumbnail the image
-        callargs = []
-        callargs.append("convert")
-        callargs.append(destination)
-        callargs.append("-filter")
-        callargs.append("Lanczos")
-        callargs.append("-thumbnail")
-        callargs.append(thumb_size)
-        callargs.append(destination)
+        callargs = calls.call_imagic_resize(destination, thumb_size)
         logging.debug(callargs)
         fetch_and_resize.attach(callargs, calls.on_magic)
 

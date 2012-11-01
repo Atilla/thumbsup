@@ -20,6 +20,20 @@ def phantomjs_to_log(line):
     return loglevel, message
 
 
+def call_phantom(path, script, host, destination, view_size, ua_string, ip):
+    callargs = []
+    callargs.append(path)
+    callargs.append(script)
+    callargs.append(host)
+    callargs.append(destination)
+    x, y = view_size.split('x')
+    callargs.append(x)
+    callargs.append(y)
+    callargs.append("'%s'" % ua_string)
+    callargs.append(ip)
+    return callargs
+
+
 def on_phantom(pipe):
     """
     Callback for the phantomjs call
@@ -33,6 +47,18 @@ def on_phantom(pipe):
             logging.log(loglevel, message)
 
     return success
+
+
+def call_imagic_resize(destination, thumb_size):
+    callargs = []
+    callargs.append("convert")
+    callargs.append(destination)
+    callargs.append("-filter")
+    callargs.append("Lanczos")
+    callargs.append("-thumbnail")
+    callargs.append(thumb_size)
+    callargs.append(destination)
+    return callargs
 
 
 def on_magic(pipe):
