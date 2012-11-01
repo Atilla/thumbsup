@@ -7,6 +7,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import tornado.options
+import tornado.process
 
 from thumbsup import ThumbnailHandler
 import thumbsup.paths
@@ -48,9 +49,14 @@ if __name__ == "__main__":
     try:
         http_server = tornado.httpserver.HTTPServer(init_application(),
                                                     xheaders=True)
-        http_server.listen(settings["port"])
+        http_server.bind(settings["port"])
+        http_server.start(settings["processes"])
+        task_id = tornado.process.task_id()
+        if task_id is None:
+            logging.info("Initialized. Starting server")
+        else:
+            logging.info("Initialized. Starting instance %d" % task_id)
 
-        logging.info("Initialized, Starting server")
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
         logging.info("IOLoop terminated by user")
