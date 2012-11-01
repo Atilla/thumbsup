@@ -13,6 +13,13 @@ from thumbsup import ThumbnailHandler
 import thumbsup.paths
 from settings import settings
 
+# If setproctitle is installed, set the process title to 'thumbsup'
+try:
+    import setproctitle
+    setproctitle.setproctitle("thumbsup")
+except ImportError:
+    pass
+
 
 def init_application():
     subfolders = thumbsup.paths.get_subs(settings['static_path'])
