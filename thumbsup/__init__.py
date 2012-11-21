@@ -126,20 +126,22 @@ class ThumbnailHandler(tornado.web.RequestHandler):
             # We can't support relative paths anyway.
             components = urlparse(host)
             if not  components.scheme:
-                components = list(urlparse("http://" + host))
+                components = urlparse("http://" + host)
 
+            components = list(components)
             # Encode the domain according to idna
             domain = components[1].encode("idna")
             components[1] = domain
 
+            socket.gethostbyname(domain)
             norm_host = urlunparse(urlnorm.norm(components))
-            socket.gethostbyname(components[1])
-        except (UnicodeError, AttributeError):
+        except (UnicodeError, AttributeError), e:
             logging.error("Invalid address provided - %s" % host)
+            logging.error(e)
             self.send_error(504)
             return
         except socket.gaierror:
-            logging.error("Domain not found - %s" % components.netloc)
+            logging.error("Domain not found - %s" % domain)
             self.send_error(504)
             return
 
