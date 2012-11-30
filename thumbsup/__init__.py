@@ -11,7 +11,24 @@ from urlparse import urlparse, urlunparse
 import tornado.ioloop
 import tornado.web
 
+# If using a new python, import the lru_cache from stdlib otherwise
+# use the backported functools module
+try:
+    from functools import lru_cache
+except ImportError:
+    from functools32 import lru_cache
+
 from thumbsup import urlnorm, calls, paths
+
+
+@lru_cache(maxsize=100000)
+def domain_exists(domain):
+    try:
+        logging.debug("Checking for existance of non-cached domain")
+        return socket.gethostbyname(domain)
+    except socket.gaierror:
+        logging.error("Domain not found - %s" % domain)
+        return None
 
 
 class TaskChain(object):
@@ -48,7 +65,7 @@ class TaskChain(object):
         if to_call is not None:
             assert self.pipe
             success = to_call(self.pipe)
-            logging.debug("Removing handler %s" % fd )
+            logging.debug("Removing handler %s" % fd)
             self.ioloop.remove_handler(fd)
 
         # Bail if something in the chain breaks
@@ -125,7 +142,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
             # If we don't have a default scheme, default to http
             # We can't support relative paths anyway.
             components = urlparse(host)
-            if not  components.scheme:
+            if not components.scheme:
                 components = urlparse("http://" + host)
 
             components = list(components)
@@ -133,15 +150,13 @@ class ThumbnailHandler(tornado.web.RequestHandler):
             domain = components[1].encode("idna")
             components[1] = domain
 
-            socket.gethostbyname(domain)
+            if not domain_exists(domain):
+                self.send_error(504)
+                return
             norm_host = urlunparse(urlnorm.norm(components))
-        except (UnicodeError, AttributeError), e:
+        except (UnicodeError, AttributeError) as e:
             logging.error("Invalid address provided - %s" % host)
             logging.error(e)
-            self.send_error(504)
-            return
-        except socket.gaierror:
-            logging.error("Domain not found - %s" % domain)
             self.send_error(504)
             return
 
@@ -150,7 +165,7 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         thumb_size = self.get_argument("thumb_size",
                                        self.settings["thumb_size"]).lower()
         image_format = self.get_argument("image_format",
-                                       self.settings["image_format"]).lower()
+                                         self.settings["image_format"]).lower()
 
         img_hash = self.filename_digest(domain, norm_host,
                                         view_size, thumb_size)
@@ -159,10 +174,10 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         destination = os.path.join(self.settings["static_path"], self.filename)
 
         if os.path.isfile(destination):
-            logging.info("%s exists already, redirecting"  % norm_host)
+            logging.info("%s exists already, redirecting" % norm_host)
             self.redirect(self.redirect_location)
         else:
-            logging.info("%s not found, starting render"  % norm_host)
+            logging.info("%s not found, starting render" % norm_host)
             self._make_external_calls(norm_host, destination,
                                       view_size, thumb_size,
                                       self.request.remote_ip)

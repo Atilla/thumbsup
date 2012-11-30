@@ -67,5 +67,5 @@ if __name__ == "__main__":
         tornado.ioloop.IOLoop.instance().start()
     except KeyboardInterrupt:
         logging.info("IOLoop terminated by user")
-    except Exception, e:
+    except Exception as e:
         logging.error("IOLoop terminated with: %s" % e)
